@@ -1,4 +1,6 @@
+import asyncio
 from typing import Callable, Dict, Any
+
 import pyshark
 
 
@@ -9,7 +11,7 @@ def extract_packet_info(packet) -> Dict[str, Any]:
         "src_port": None,
         "dst_port": None,
         "protocol": None,
-        "length": None,
+        "length": 0,
         "tcp_flags": None,
     }
 
@@ -41,6 +43,11 @@ def extract_packet_info(packet) -> Dict[str, Any]:
 
 
 def start_capture(interface: str, packet_callback: Callable[[Dict[str, Any]], None]) -> None:
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
     capture = pyshark.LiveCapture(interface=interface)
 
     try:
@@ -53,3 +60,9 @@ def start_capture(interface: str, packet_callback: Callable[[Dict[str, Any]], No
 
     except Exception as exc:
         print(f"[!] Capture error: {exc}")
+
+    finally:
+        try:
+            capture.close()
+        except Exception:
+            pass

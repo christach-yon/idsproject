@@ -1,4 +1,4 @@
-INTERFACE = "eth0"  # Change this to your interface, e.g. Wi-Fi, Ethernet, en0, wlan0
+INTERFACE = "Ethernet"  # Change this to your interface, e.g. Wi-Fi, Ethernet, en0, wlan0
 
 SUSPICIOUS_PORTS = {
     21: "FTP",
