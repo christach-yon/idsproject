@@ -48,11 +48,20 @@ def start_capture(interface: str, packet_callback: Callable[[Dict[str, Any]], No
     except RuntimeError:
         asyncio.set_event_loop(asyncio.new_event_loop())
 
-    capture = pyshark.LiveCapture(interface=interface)
+    # 🔥 BPF FILTER ADDED HERE
+    capture = pyshark.LiveCapture(
+        interface=interface,
+        bpf_filter="tcp or udp"
+    )
 
     try:
         for packet in capture.sniff_continuously():
             packet_info = extract_packet_info(packet)
+
+            # Skip empty packets
+            if not packet_info["src_ip"] or not packet_info["dst_ip"]:
+                continue
+
             packet_callback(packet_info)
 
     except KeyboardInterrupt:
